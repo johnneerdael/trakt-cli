@@ -1803,12 +1803,6 @@ impl Api {
     }
     
     /// Reorder watchlist (OAuth required).
-    pub async fn reorder_watchlist(
-        client: &TraktClient,
-        data: Value,
-    ) -> crate::Result<Value> {
-        client.post("/sync/watchlist/reorder", Some(&data)).await
-    }
     
     /// Get sync favorites.
     pub async fn get_sync_favorites(
@@ -1857,12 +1851,6 @@ impl Api {
     }
     
     /// Reorder favorites (OAuth required).
-    pub async fn reorder_favorites(
-        client: &TraktClient,
-        data: Value,
-    ) -> crate::Result<Value> {
-        client.post("/sync/favorites/reorder", Some(&data)).await
-    }
     
     // ============ Scrobble / Checkin (OAuth required) ============
     
@@ -2573,5 +2561,114 @@ impl Api {
         } else {
             String::new()
         }
+    
+    }
+
+    pub async fn get_genres(client: &TraktClient, type_: &str, extended: Option<&str>) -> crate::Result<Value> {
+        let mut endpoint = format!("/genres/{}", type_);
+        if let Some(ext) = extended {
+            endpoint.push_str(&format!("?extended={}", ext));
+        }
+        client.get(&endpoint, None).await
+    }
+
+    pub async fn get_movie_people_extended(client: &TraktClient, id: &str, extended: Option<&str>) -> crate::Result<Value> {
+        let mut endpoint = format!("/movies/{}/people", id);
+        if let Some(ext) = extended {
+            endpoint.push_str(&format!("?extended={}", ext));
+        }
+        client.get(&endpoint, None).await
+    }
+
+    pub async fn get_show_people_extended(client: &TraktClient, id: &str, extended: Option<&str>) -> crate::Result<Value> {
+        let mut endpoint = format!("/shows/{}/people", id);
+        if let Some(ext) = extended {
+            endpoint.push_str(&format!("?extended={}", ext));
+        }
+        client.get(&endpoint, None).await
+    }
+
+    pub async fn add_notes(client: &TraktClient, data: Value) -> crate::Result<Value> {
+        client.post("/notes", Some(&data)).await
+    }
+
+    pub async fn create_user_list(client: &TraktClient, id: &str, data: Value) -> crate::Result<Value> {
+        client.post(&format!("/users/{}/lists", id), Some(&data)).await
+    }
+    
+    pub async fn update_user_list(client: &TraktClient, id: &str, list_id: &str, data: Value) -> crate::Result<Value> {
+        client.put(&format!("/users/{}/lists/{}", id, list_id), Some(&data)).await
+    }
+    
+    pub async fn delete_user_list(client: &TraktClient, id: &str, list_id: &str) -> crate::Result<Value> {
+        client.delete(&format!("/users/{}/lists/{}", id, list_id)).await
+    }
+
+    pub async fn add_user_list_items(client: &TraktClient, id: &str, list_id: &str, data: Value) -> crate::Result<Value> {
+        client.post(&format!("/users/{}/lists/{}/items", id, list_id), Some(&data)).await
+    }
+    
+    pub async fn remove_user_list_items(client: &TraktClient, id: &str, list_id: &str, data: Value) -> crate::Result<Value> {
+        client.post(&format!("/users/{}/lists/{}/items/remove", id, list_id), Some(&data)).await
+    }
+    
+    pub async fn reorder_user_list_items(client: &TraktClient, id: &str, list_id: &str, data: Value) -> crate::Result<Value> {
+        client.post(&format!("/users/{}/lists/{}/items/reorder", id, list_id), Some(&data)).await
+    }
+    
+    pub async fn update_user_list_item(client: &TraktClient, id: &str, list_id: &str, list_item_id: &str, data: Value) -> crate::Result<Value> {
+        client.put(&format!("/users/{}/lists/{}/items/{}", id, list_id, list_item_id), Some(&data)).await
+    }
+
+    pub async fn get_user_requests_following(client: &TraktClient) -> crate::Result<Value> {
+        client.get("/users/requests/following", None).await
+    }
+    
+    pub async fn get_user_requests(client: &TraktClient) -> crate::Result<Value> {
+        client.get("/users/requests", None).await
+    }
+    
+    pub async fn approve_user_request(client: &TraktClient, id: &str) -> crate::Result<Value> {
+        let empty = serde_json::json!({});
+        client.post(&format!("/users/requests/{}", id), Some(&empty)).await
+    }
+    
+    pub async fn deny_user_request(client: &TraktClient, id: &str) -> crate::Result<Value> {
+        client.delete(&format!("/users/requests/{}", id)).await
+    }
+
+    pub async fn get_hidden_items(client: &TraktClient, section: &str, type_: Option<&str>) -> crate::Result<Value> {
+        let mut endpoint = format!("/users/hidden/{}", section);
+        if let Some(t) = type_ {
+            endpoint.push_str(&format!("?type={}", t));
+        }
+        client.get(&endpoint, None).await
+    }
+
+    pub async fn get_user_list(client: &TraktClient, id: &str, list_id: &str) -> crate::Result<Value> {
+        client.get(&format!("/users/{}/lists/{}", id, list_id), None).await
+    }
+
+    
+    
+    pub async fn reorder_lists(client: &TraktClient, id: &str, data: Value) -> crate::Result<Value> {
+        client.post(&format!("/users/{}/lists/reorder", id), Some(&data)).await
+    }
+
+    pub async fn get_user_favorites(client: &TraktClient, id: &str, type_: Option<&str>, pagination: Option<Pagination>) -> crate::Result<serde_json::Value> {
+        let mut endpoint = format!("/users/{}/favorites", id);
+        if let Some(t) = type_ {
+            endpoint.push_str(&format!("/{}", t));
+        }
+        endpoint.push_str(&Self::build_query_string(pagination.as_ref()));
+        client.get(&endpoint, None).await
+    }
+
+    pub async fn reorder_watchlist(client: &TraktClient, data: serde_json::Value) -> crate::Result<serde_json::Value> {
+        client.post("/sync/watchlist/reorder", Some(&data)).await
+    }
+    
+    pub async fn reorder_favorites(client: &TraktClient, data: serde_json::Value) -> crate::Result<serde_json::Value> {
+        client.post("/sync/favorites/reorder", Some(&data)).await
     }
 }
