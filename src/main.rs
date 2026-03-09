@@ -1264,6 +1264,75 @@ enum Commands {
     /// 
     /// Example: trakt-cli updated-people-ids --json
     UpdatedPeopleIds,
+    
+    /// Add to collection (OAuth required)
+    AddToCollection { data: String },
+    
+    /// Remove from collection (OAuth required)
+    RemoveFromCollection { data: String },
+    
+    /// Add to watchlist (OAuth required)
+    AddToWatchlist { data: String },
+    
+    /// Remove from watchlist (OAuth required)
+    RemoveFromWatchlist { data: String },
+    
+    /// Add ratings (OAuth required)
+    AddRatings { data: String },
+    
+    /// Remove ratings (OAuth required)
+    RemoveRatings { data: String },
+    
+    /// Add to history (OAuth required)
+    AddToHistory { data: String },
+    
+    /// Remove from history (OAuth required)
+    RemoveFromHistory { data: String },
+    
+    /// Add to favorites (OAuth required)
+    AddToFavorites { data: String },
+    
+    /// Remove from favorites (OAuth required)
+    RemoveFromFavorites { data: String },
+    
+    /// Get movie aliases
+    MovieAliases { id: String },
+    
+    /// Get movie releases
+    MovieReleases { id: String },
+    
+    /// Get movie translations
+    MovieTranslations { id: String },
+    
+    /// Get show aliases
+    ShowAliases { id: String },
+    
+    /// Get show translations
+    ShowTranslations { id: String },
+    
+    /// Get episode videos
+    EpisodeVideos { show_id: String, season_id: String, episode_id: String },
+    
+    /// Get season videos
+    SeasonVideos { show_id: String, season_id: String },
+    
+    /// Create a personal list
+    CreatePersonalList { name: String, description: Option<String> },
+    
+    /// Update a personal list
+    UpdatePersonalList { id: String, name: String, description: Option<String> },
+    
+    /// Delete a personal list
+    DeletePersonalList { id: String },
+    
+    /// Add items to personal list
+    AddPersonalListItems { id: String, data: String },
+    
+    /// Remove items from personal list
+    RemovePersonalListItems { id: String, data: String },
+    
+    /// Get personal list
+    PersonalList { id: String },
 }
 
 fn output_result(result: Result<Value>, json: bool, quiet: bool) -> i32 {
@@ -2520,6 +2589,182 @@ async fn run_cli(cli: Cli) -> Result<i32> {
                 .with_page(cli.page.unwrap_or(1))
                 .with_limit(cli.limit.unwrap_or(100));
             let result = api::Api::get_updated_people_ids(&client, None, Some(pagination)).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddToCollection { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_to_collection(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemoveFromCollection { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_from_collection(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddToWatchlist { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_to_watchlist(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemoveFromWatchlist { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_from_watchlist(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddRatings { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_ratings(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemoveRatings { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_ratings(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddToHistory { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_to_history(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemoveFromHistory { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_from_history(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddToFavorites { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_to_favorites(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemoveFromFavorites { data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_from_favorites(&client, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::MovieAliases { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_movie_aliases(&client, &id).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::MovieReleases { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_movie_releases(&client, &id, None).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::MovieTranslations { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_movie_translations(&client, &id, None).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::ShowAliases { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_show_aliases(&client, &id).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::ShowTranslations { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_show_translations(&client, &id, None).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::EpisodeVideos { show_id, season_id, episode_id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_episode_videos(&client, &show_id, &season_id, &episode_id).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::SeasonVideos { show_id, season_id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::get_season_videos(&client, &show_id, &season_id).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::CreatePersonalList { name, description } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::create_personal_list(&client, &name, description.as_deref(), None).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::UpdatePersonalList { id, name, description } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::update_personal_list(&client, "me", &id, Some(&name), description.as_deref(), None).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::DeletePersonalList { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let result = api::Api::delete_personal_list(&client, "me", &id).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::AddPersonalListItems { id, data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::add_personal_list_items(&client, "me", &id, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::RemovePersonalListItems { id, data } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let items: Value = serde_json::from_str(&data)?;
+            let result = api::Api::remove_personal_list_items(&client, "me", &id, items).await?;
+            Ok(output_result(Ok(result), cli.json, cli.quiet))
+        }
+        
+        Commands::PersonalList { id } => {
+            let cfg = config::Config::load()?;
+            let client = client::TraktClient::new(cfg).await?;
+            let pagination = pagination::Pagination::new()
+                .with_page(cli.page.unwrap_or(1))
+                .with_limit(cli.limit.unwrap_or(10));
+            let result = api::Api::get_list(&client, &id, Some(pagination)).await?;
             Ok(output_result(Ok(result), cli.json, cli.quiet))
         }
     }
